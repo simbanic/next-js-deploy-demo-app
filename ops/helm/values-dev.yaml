@@ -1,0 +1,49 @@
+replicaCount: 1
+
+containerPort: 3000
+
+image:
+  repository: localhost:32000/nextjs-app
+  tag: dev
+  
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    # Upload size (client_max_body_size)
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+    # HTTP / WebSocket support for Next.js
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+
+    # Timeouts (SSR / streaming safe)
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # Buffering (matches your nginx.conf)
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "16"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+
+  hosts:
+    - host: nextjs-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+hpa:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
