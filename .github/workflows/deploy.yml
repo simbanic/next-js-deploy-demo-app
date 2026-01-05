@@ -61,6 +61,7 @@ jobs:
 
           docker buildx build \
             --platform linux/arm64 \
+            --file ops/Dockerfile \
             --tag $IMAGE_URI \
             --push \
             --cache-from type=local,src=/tmp/.buildx-cache \
