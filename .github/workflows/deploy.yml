@@ -25,6 +25,10 @@ jobs:
       # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+    
+      - permissions:
+          id-token: write
+          contents: read
 
       # ------------------------------------------------------------
       # Configure AWS credentials via OIDC
@@ -50,6 +54,10 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
+
+      - name: Verify assumed IAM role
+        run: |
+          aws sts get-caller-identity
 
       # ------------------------------------------------------------
       # Generate kubeconfig for EKS
