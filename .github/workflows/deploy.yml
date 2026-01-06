@@ -64,6 +64,10 @@ jobs:
             --region $AWS_REGION \
             --cluster-name $EKS_CLUSTER_NAME
 
+      - name: Dump kubeconfig (debug)
+        run: |
+          kubectl config view --raw
+
       # ------------------------------------------------------------
       # Update kubeconfig
       # ------------------------------------------------------------
