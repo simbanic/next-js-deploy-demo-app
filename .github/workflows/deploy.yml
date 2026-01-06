@@ -74,7 +74,9 @@ jobs:
       - name: Update kubeconfig
         env:
           AWS_EKS_INTERACTIVE_MODE: never
+          KUBECONFIG: /home/runner/.kube/config
         run: |
+          mkdir -p /home/runner/.kube
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $EKS_CLUSTER_NAME
@@ -83,6 +85,8 @@ jobs:
       # Verify Kubernetes access
       # ------------------------------------------------------------
       - name: Verify cluster access
+        env:
+          KUBECONFIG: /home/runner/.kube/config
         run: |
           kubectl get nodes
 
