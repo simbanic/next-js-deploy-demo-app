@@ -72,23 +72,19 @@ jobs:
       # Update kubeconfig
       # ------------------------------------------------------------
       - name: Update kubeconfig
-        env:
-          AWS_EKS_INTERACTIVE_MODE: never
-          KUBECONFIG: /home/runner/.kube/config
         run: |
           mkdir -p /home/runner/.kube
           aws eks update-kubeconfig \
             --region $AWS_REGION \
-            --name $EKS_CLUSTER_NAME
+            --name $EKS_CLUSTER_NAME \
+            --kubeconfig /home/runner/.kube/config
 
       # ------------------------------------------------------------
       # Verify Kubernetes access
       # ------------------------------------------------------------
       - name: Verify cluster access
-        env:
-          KUBECONFIG: /home/runner/.kube/config
         run: |
-          kubectl get nodes
+        kubectl --kubeconfig /home/runner/.kube/config get nodes
 
       # ------------------------------------------------------------
       # Helm deploy (NO IMAGE BUILD)
