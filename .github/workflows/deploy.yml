@@ -37,13 +37,13 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       # ------------------------------------------------------------
-      # Verify AWS identity (CRITICAL)
+      # Verify AWS identity
       # ------------------------------------------------------------
       - name: Verify assumed IAM role
         run: aws sts get-caller-identity
 
       # ------------------------------------------------------------
-      # Install kubectl
+      # Install kubectl (pinned, stable for EKS)
       # ------------------------------------------------------------
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
@@ -58,18 +58,8 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Debug EKS token generation
-        run: |
-          aws eks get-token \
-            --region $AWS_REGION \
-            --cluster-name $EKS_CLUSTER_NAME
-
-      - name: Dump kubeconfig (debug)
-        run: |
-          kubectl config view --raw
-
       # ------------------------------------------------------------
-      # Update kubeconfig
+      # Update kubeconfig (WRITE FILE EXPLICITLY)
       # ------------------------------------------------------------
       - name: Update kubeconfig
         run: |
@@ -80,14 +70,27 @@ jobs:
             --kubeconfig /home/runner/.kube/config
 
       # ------------------------------------------------------------
-      # Verify Kubernetes access
+      # DEBUG — ALWAYS RUN (even if kubeconfig step fails)
+      # ------------------------------------------------------------
+      - name: Show kubeconfig file
+        if: always()
+        run: |
+          echo "PWD=$(pwd)"
+          echo "HOME=$HOME"
+          echo "Listing ~/.kube:"
+          ls -l /home/runner/.kube || true
+          echo "----- kubeconfig content -----"
+          cat /home/runner/.kube/config || echo "FILE NOT FOUND"
+
+      # ------------------------------------------------------------
+      # Verify Kubernetes access (only meaningful if config exists)
       # ------------------------------------------------------------
       - name: Verify cluster access
         run: |
           kubectl --kubeconfig /home/runner/.kube/config get nodes
 
       # ------------------------------------------------------------
-      # Helm deploy (NO IMAGE BUILD)
+      # Helm deploy (will run only if kubectl succeeds)
       # ------------------------------------------------------------
       - name: Deploy with Helm
         run: |
