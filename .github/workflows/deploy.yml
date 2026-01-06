@@ -68,12 +68,13 @@ jobs:
       # Update kubeconfig
       # ------------------------------------------------------------
       - name: Update kubeconfig
+        env:
+          AWS_EKS_INTERACTIVE_MODE: never
         run: |
           aws eks update-kubeconfig \
             --region $AWS_REGION \
             --name $EKS_CLUSTER_NAME
-            --no-interactive
-            
+
       # ------------------------------------------------------------
       # Verify Kubernetes access
       # ------------------------------------------------------------
