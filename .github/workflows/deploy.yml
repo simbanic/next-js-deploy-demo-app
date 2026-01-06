@@ -84,7 +84,7 @@ jobs:
       # ------------------------------------------------------------
       - name: Verify cluster access
         run: |
-        kubectl --kubeconfig /home/runner/.kube/config get nodes
+          kubectl --kubeconfig /home/runner/.kube/config get nodes
 
       # ------------------------------------------------------------
       # Helm deploy (NO IMAGE BUILD)
