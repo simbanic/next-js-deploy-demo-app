@@ -58,6 +58,12 @@ jobs:
         with:
           version: v3.14.0
 
+      - name: Debug EKS token generation
+        run: |
+          aws eks get-token \
+            --region $AWS_REGION \
+            --cluster-name $EKS_CLUSTER_NAME
+
       # ------------------------------------------------------------
       # Update kubeconfig
       # ------------------------------------------------------------
