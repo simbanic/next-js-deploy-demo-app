@@ -15,7 +15,7 @@ env:
 
 jobs:
   deploy:
-    runs-on: demo-runners-dmnl5-runner-smrqp
+    runs-on: demo-runners
 
 
     steps:
