@@ -15,8 +15,9 @@ env:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, demo-runners]
-    
+    runs-on: demo-runners-dmnl5-runner-smrqp
+
+
     steps:
       # ------------------------------------------------------------
       # Checkout code 1
