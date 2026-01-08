@@ -19,7 +19,7 @@ jobs:
 
     steps:
       # ------------------------------------------------------------
-      # Checkout code
+      # Checkout code 1
       # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
