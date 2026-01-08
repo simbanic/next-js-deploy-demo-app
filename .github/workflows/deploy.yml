@@ -15,8 +15,8 @@ env:
 
 jobs:
   deploy:
-    runs-on: self-hosted
-
+    runs-on: [self-hosted, demo-runners]
+    
     steps:
       # ------------------------------------------------------------
       # Checkout code 1
