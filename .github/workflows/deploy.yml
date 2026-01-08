@@ -6,91 +6,34 @@ on:
       - main
 
 permissions:
-  id-token: write
   contents: read
 
 env:
-  AWS_REGION: ap-south-1
-  EKS_CLUSTER_NAME: demo-eks-cluster
   HELM_RELEASE: nextjs
   HELM_CHART_PATH: .ops/helm
   K8S_NAMESPACE: test-deploy
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       # ------------------------------------------------------------
-      # Checkout
+      # Checkout code
       # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # ------------------------------------------------------------
-      # AWS auth via OIDC
-      # ------------------------------------------------------------
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::711039118774:role/github-actions-eks
-          aws-region: ${{ env.AWS_REGION }}
-
-      # ------------------------------------------------------------
-      # Verify AWS identity
-      # ------------------------------------------------------------
-      - name: Verify assumed IAM role
-        run: aws sts get-caller-identity
-
-      # ------------------------------------------------------------
-      # Install kubectl (pinned, stable for EKS)
-      # ------------------------------------------------------------
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: v1.26.15
-
-      # ------------------------------------------------------------
-      # Install Helm
-      # ------------------------------------------------------------
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.14.0
-
-      # ------------------------------------------------------------
-      # Update kubeconfig (WRITE FILE EXPLICITLY)
-      # ------------------------------------------------------------
-      - name: Update kubeconfig
-        run: |
-          mkdir -p /home/runner/.kube
-          aws eks update-kubeconfig \
-            --region $AWS_REGION \
-            --name $EKS_CLUSTER_NAME \
-            --kubeconfig /home/runner/.kube/config
-
-      # ------------------------------------------------------------
-      # DEBUG — ALWAYS RUN (even if kubeconfig step fails)
-      # ------------------------------------------------------------
-      - name: Show kubeconfig file
-        if: always()
-        run: |
-          echo "PWD=$(pwd)"
-          echo "HOME=$HOME"
-          echo "Listing ~/.kube:"
-          ls -l /home/runner/.kube || true
-          echo "----- kubeconfig content -----"
-          cat /home/runner/.kube/config || echo "FILE NOT FOUND"
-
-      # ------------------------------------------------------------
-      # Verify Kubernetes access (only meaningful if config exists)
+      # Verify Kubernetes access (ARC runner already authenticated)
       # ------------------------------------------------------------
       - name: Verify cluster access
         run: |
-          kubectl --kubeconfig /home/runner/.kube/config get nodes
+          kubectl get nodes
+          kubectl get ns
 
       # ------------------------------------------------------------
-      # Helm deploy (will run only if kubectl succeeds)
+      # Deploy with Helm
       # ------------------------------------------------------------
       - name: Deploy with Helm
         run: |
