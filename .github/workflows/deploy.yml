@@ -10,7 +10,7 @@ permissions:
 
 env:
   HELM_RELEASE: nextjs
-  HELM_CHART_PATH: .ops/helm
+  HELM_CHART_PATH: ops/helm
   K8S_NAMESPACE: test-deploy
 
 jobs:
@@ -44,13 +44,6 @@ jobs:
         run: |
           kubectl get nodes
           kubectl get ns
-
-      - name: Debug repo structure
-        run: |
-          pwd
-          ls -la
-          ls -la .ops || true
-          ls -la .ops/helm || true
 
       # ------------------------------------------------------------
       # Deploy with Helm
