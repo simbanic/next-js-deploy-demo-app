@@ -45,6 +45,13 @@ jobs:
           kubectl get nodes
           kubectl get ns
 
+      - name: Debug repo structure
+        run: |
+          pwd
+          ls -la
+          ls -la .ops || true
+          ls -la .ops/helm || true
+
       # ------------------------------------------------------------
       # Deploy with Helm
       # ------------------------------------------------------------
