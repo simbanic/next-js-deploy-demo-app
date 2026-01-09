@@ -1,22 +1,45 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ .Chart.Name }}
-spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      app: {{ .Chart.Name }}
-  template:
+# ------------------------------------------------------------
+# Build & Push image with Kaniko (ARC-compatible)
+# ------------------------------------------------------------
+- name: Build & Push image (Kaniko)
+  run: |
+    IMAGE_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+    WORKSPACE=/home/runner/_work/${{ github.repository }}/$(basename ${{ github.repository }})
+
+    cat <<EOF | kubectl apply -f -
+    apiVersion: v1
+    kind: Pod
     metadata:
-      labels:
-        app: {{ .Chart.Name }}
+      name: kaniko-build
+      namespace: $K8S_NAMESPACE
     spec:
+      restartPolicy: Never
+      serviceAccountName: demo-runners-gha-rs-no-permission
       containers:
-        - name: nextjs
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: {{ .Values.service.targetPort }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:v1.23.2
+        args:
+          - "--dockerfile=Dockerfile"
+          - "--context=dir:///workspace"
+          - "--destination=$IMAGE_URI"
+          - "--verbosity=info"
+        env:
+          - name: AWS_REGION
+            value: "$AWS_REGION"
+        volumeMounts:
+          - name: workspace
+            mountPath: /workspace
+      volumes:
+        - name: workspace
+          hostPath:
+            path: $WORKSPACE
+            type: Directory
+    EOF
+
+    kubectl wait \
+      --for=condition=Ready \
+      pod/kaniko-build \
+      -n $K8S_NAMESPACE \
+      --timeout=10m
+
+    kubectl logs -n $K8S_NAMESPACE kaniko-build
