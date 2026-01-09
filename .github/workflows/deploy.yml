@@ -51,6 +51,7 @@ jobs:
       - name: Deploy with Helm
         run: |
           helm upgrade --install "$HELM_RELEASE" "$HELM_CHART_PATH" \
+            -f "$HELM_CHART_PATH/values.dev.yml" \
             --namespace "$K8S_NAMESPACE" \
             --create-namespace \
             --atomic \
